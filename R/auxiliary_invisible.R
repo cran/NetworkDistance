@@ -11,6 +11,7 @@
 # 06. list_Adj2LapEigs : given a list of adjacency matrices, compute stacked eigenvectors and eigenvalues
 #                        mainly used for "gdd" (graph diffusion distance) and laplacian flows.
 # 07. list_Adj2LapEigsOrder1 : L1
+# 08. list_Adj2SPD           : make laplacian strictly positive semidefinite (global regularization)
 
 
 
@@ -21,10 +22,10 @@
 #' @noRd
 graph_transform <- function(obj,NIs="allowed"){
   # 1. package:: igraph
-  if (class(obj)=="igraph"){
+  if (inherits(obj, "igraph")){
     output = as_adjacency_matrix(obj)
   # 2. package:: network
-  } else if (class(obj)=="network"){
+  } else if (inherits(obj, "network")){
     output = Matrix(as.matrix.network(obj, matrix.type = "adjacency"), sparse=TRUE)
   # 3. simple matrix
   } else {
@@ -66,7 +67,10 @@ list_transform <- function(A, NIflag="allowed"){
 #' @keywords internal
 #' @noRd
 laplacian_unnormalized <- function(matA){
-  matD = diag(rowSums(matA))-matA
+  matD = as.matrix(diag(rowSums(matA))-matA)
+  if ((as.double(RSpectra::eigs(matD, 1, which="SM")$values)) < 0){
+    matD = as.matrix(Matrix::nearPD(matD, posd.tol=28*.Machine$double.eps)$mat)
+  }
   return(matD)
 }
 # 04. laplacian_normalized ------------------------------------------------
@@ -78,7 +82,10 @@ laplacian_normalized <- function(matA){
   Dinv2[which(is.infinite(Dinv2))]=0
 
   D     = diag(dd)
-  output = Dinv2%*%(D-matA)%*%Dinv2
+  output = as.matrix(Dinv2%*%(D-matA)%*%Dinv2)
+  if ((as.double(RSpectra::eigs(output, 1, which="SM")$values)) < 0){
+    output = as.matrix(Matrix::nearPD(output, posd.tol=28*.Machine$double.eps)$mat)
+  }
   return(output)
 }
 # 05. laplacian_signless --------------------------------------------------
@@ -165,4 +172,35 @@ list_Adj2LapEigsOrder1 <- function(listA){
   return(output)
 }
 
+
+# 08. list_Adj2SPD --------------------------------------------------------
+#     make laplacian strictly positive semidefinite (global regularization)
+#' @keywords internal
+#' @noRd
+list_Adj2SPD  <- function(listA, normalized=FALSE, stack3d=TRUE){
+  # parameters
+  N = length(listA)
+  p = nrow(listA[[1]])
+
+  # compute graph laplacians
+  Ls = list()
+  if (normalized==FALSE){
+    for (i in 1:N){
+      tgt = listA[[i]]
+      diag(tgt) = 0
+      Ls[[i]] = laplacian_unnormalized(tgt)
+    }
+  } else if (normalized==TRUE){
+    for (i in 1:N){
+      tgt = listA[[i]]
+      diag(tgt) = 0
+      Ls[[i]] = laplacian_normalized(tgt)
+    }
+  } else {
+    stop("")
+  }
+
+  # return
+  return(Ls)
+}
 
