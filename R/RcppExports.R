@@ -5,33 +5,19 @@ aux_FrobeniusDiff <- function(A, B) {
     .Call('_NetworkDistance_aux_FrobeniusDiff', PACKAGE = 'NetworkDistance', A, B)
 }
 
-#' @keywords internal
-#' @noRd
 lfdistance <- function(L1, L2, inct) {
     .Call('_NetworkDistance_lfdistance', PACKAGE = 'NetworkDistance', L1, L2, inct)
 }
 
-#' @keywords internal
-#' @noRd
 lfdistance_new <- function(L1, D1, L2, D2, timestamp) {
     .Call('_NetworkDistance_lfdistance_new', PACKAGE = 'NetworkDistance', L1, D1, L2, D2, timestamp)
 }
 
-#' @keywords internal
-#' @noRd
 lfdistance_new_faster <- function(vecs, vals, timestamps) {
     .Call('_NetworkDistance_lfdistance_new_faster', PACKAGE = 'NetworkDistance', vecs, vals, timestamps)
 }
 
-#' @keywords internal
-#' @noRd
 cpp_gdd <- function(vecs, vals, timestamps) {
     .Call('_NetworkDistance_cpp_gdd', PACKAGE = 'NetworkDistance', vecs, vals, timestamps)
-}
-
-#' @keywords internal
-#' @noRd
-eigendec <- function(L) {
-    .Call('_NetworkDistance_eigendec', PACKAGE = 'NetworkDistance', L)
 }
 
