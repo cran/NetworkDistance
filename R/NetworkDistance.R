@@ -8,8 +8,9 @@
 #' \code{matrix} object in \pkg{R} base, \code{network} class from \pkg{network} package, and \code{igraph} class from
 #' \pkg{igraph} package.
 #'
-#' @docType package
+#' @noRd
 #' @name NetworkDistance
+#' @aliases NetworkDistance-package
 #' @import Rdpack
 #' @import Matrix
 #' @import RSpectra
@@ -23,6 +24,6 @@
 #' @importFrom parallel detectCores stopCluster makeCluster
 #' @importFrom doParallel registerDoParallel
 #' @importFrom Rcpp evalCpp
-#' @useDynLib NetworkDistance
+#' @useDynLib NetworkDistance, .registration = TRUE
 NULL
 
